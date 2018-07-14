@@ -2,9 +2,9 @@
 
 // Constructor initialize the input and output streams. Also initializes the policy for throttling with number of messages and amount of dealy interval.
 Application::Application(const std::string& inputStream, const std::string& outputStream, const std::string& badMessageStreamName, 
-						 const int& numMessages, const long& milliSecondTimeWindow, const double& queueThresholdFactor, const long& evictionExcutePolicy) : 
-				 		 m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
-	              		 m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy) 
+		const int& numMessages, const long& milliSecondTimeWindow, const double& queueThresholdFactor, const long& evictionExcutePolicy) : 
+	m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
+	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy) 
 {
 	SlidingWindowThrottlePolicy policy(numMessages, milliSecondTimeWindow);
 	m_throttlePolicy = policy;
@@ -74,28 +74,31 @@ void Application::send()
 	while(m_status != processingStatus::finished)
 	{
 		// set the condition variable to verify that queue size is greater than zero.
-		std::unique_lock<std::mutex> lk(m_waitMutex);
-		m_waitForCondition.wait(lk, [this]{ return (this->m_InternalQueue.size() > 0); });
-
-		// First thing is to lock the deque and push in the order.
+		while(m_InternalQueue.size() > 0)
 		{
-			std::lock_guard<std::mutex> guard(m_mutex);
-			now = posix_time::microsec_clock::universal_time();
-			publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
-			m_InternalQueue.pop_front();
-			m_throttlePolicy.storeTimeStamp(now);
-			publishStatus = true;
-		}
+			std::unique_lock<std::mutex> lk(m_waitMutex);
+			m_waitForCondition.wait(lk, [this]{ return (this->m_InternalQueue.size() > 0); });
 
-		// Now get the amount of time we have to wait in order to publish the message from policy.
-		long waitTime = m_throttlePolicy.getWaitTimeMilliSeconds();
-		m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
-		std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+			// First thing is to lock the deque and push in the order.
+			{
+				std::lock_guard<std::mutex> guard(m_mutex);
+				now = posix_time::microsec_clock::universal_time();
+				publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
+				m_InternalQueue.pop_front();
+				m_throttlePolicy.storeTimeStamp(now);
+				publishStatus = true;
+			}
 
-		// Now we are ready to publish.
-		if(publishStatus)
-		{
-			m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
+			// Now get the amount of time we have to wait in order to publish the message from policy.
+			long waitTime = m_throttlePolicy.getWaitTimeMilliSeconds();
+			m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+
+			// Now we are ready to publish.
+			if(publishStatus)
+			{
+				m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
+			}
 		}
 	}
 }

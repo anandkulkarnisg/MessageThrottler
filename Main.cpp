@@ -17,7 +17,11 @@ int main(int argc, char* argv[])
 	// The second parameter is the destination to which orders are written after waiting for specified period decided by policy of sliding window.
 	// Third and fourth parameter are the number of messages allowed and window Time in milli seconds.
 
-	Application	app("input.txt.full", "output.txt", "badmessages.txt", 100, 1000, 25, 60);
+	// The below will invoke eviction policy frequently and will demo flushing of the queue often.
+	//Application   app("input.txt.full", "output.txt", "badmessages.txt", 100, 1000, 25, 20);      
+
+	// The below will almost does not invoke the eviction practically.
+	Application     app("input.txt.full", "output.txt", "badmessages.txt", 100, 1000, 25, 60);
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.
 	// We try to solve this via building three std functions and send them to a generic threadPool executor. 

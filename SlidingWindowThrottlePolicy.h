@@ -1,39 +1,46 @@
-#include <boost/circular_buffer.hpp>
-#include <utility>
-#include <boost/date_time/posix_time/posix_time.hpp>
-
-#ifndef SlidingWindowThrottlePolicy_H
-#define SlidingWindowThrottlePolicy_H
+#include "ThrottlePolicy.h"
 
 using namespace std;
 using namespace boost;
 
-class SlidingWindowThrottlePolicy
+#ifndef SlidingWindowThrottlePolicy_H
+#define SlidingWindowThrottlePolicy_H
+
+class SlidingWindowThrottlePolicy : public ThrottlePolicy
 {
-	private:
-        boost::circular_buffer<boost::posix_time::ptime> cb;
-        bool m_isBufferFull = false;
-        int m_numMessages;
-        long m_milliSecondWindow;
-
 	public:
-		// Constructors.
-		SlidingWindowThrottlePolicy();
-		SlidingWindowThrottlePolicy(const int&, const long&);
-		SlidingWindowThrottlePolicy(const SlidingWindowThrottlePolicy&);
-		SlidingWindowThrottlePolicy& operator=(const SlidingWindowThrottlePolicy&);
+		SlidingWindowThrottlePolicy(const int& numMessages, const long& milliSecondWindow)
+		{
+			boost::circular_buffer<boost::posix_time::ptime> buffer(numMessages);
+			init(numMessages, milliSecondWindow, buffer);			
+		}
 
-		// Method to add timestamp to the circular buffer.
-		void storeTimeStamp(const boost::posix_time::ptime&);
+		long getWaitTimeMilliSeconds()
+		{
+			// Until the circular buffer is full we publish initially at a uniform rate. ie at rate derived by getAverageMessageTime. Here it is 10 milli seconds.
+			long returnResult = 0;
+			if(isBufferFull())
+			{
+				// If the buffer is full then simply check the time difference between the last and first item of buffer.
+				long timeDiff = (cb[m_numMessages-1] - cb[0]).total_milliseconds();
 
-		// The below public functions should be implemented.
-        int getNumMessages() const;
-        long getMilliSecondWindow() const;
-        bool isBufferFull();
-        long getAvergaeMessageTime() const ;
-
-        // The below virtual function needs to implement the specific policy based on requirement. Here we implement the SlidingWindow Policy Logic.
-		long getWaitTimeMilliSeconds();
+				if(timeDiff >= m_milliSecondWindow)
+				{
+					// We can send the message queued immediately. No issues. return zero delay.
+					return(0);
+				}
+				else
+				{
+					returnResult = m_milliSecondWindow - timeDiff;
+					return(returnResult);
+				}
+			}
+			else
+			{
+				// We have to initially send the m_numMessages at a uniform rate of getAvergaeMessageTime.
+				return(getAvergaeMessageTime()); 
+			}
+		}
 };
 
 #endif

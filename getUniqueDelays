@@ -1,2 +1,4 @@
 #!/bin/bash
 grep -i "Waiting for " output.txt  | awk '{print $3}' | sort -n | uniq | less
+totalMesaagePublished=$(grep -i "Publishing the Order = " output.txt | wc -l | sed "s/ //g" | awk '{print $1}')
+echo -e "Total Messages published = $totalMesaagePublished\n"

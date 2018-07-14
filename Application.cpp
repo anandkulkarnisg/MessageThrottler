@@ -6,8 +6,8 @@ Application::Application(const std::string& inputStream, const std::string& outp
 	m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
 	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy) 
 {
-	SlidingWindowThrottlePolicy policy(numMessages, milliSecondTimeWindow);
-	m_throttlePolicy = policy;
+	std::shared_ptr<ThrottlePolicy> throttlePolicy(new SlidingWindowThrottlePolicy(numMessages, milliSecondTimeWindow));
+	m_throttlePolicy = throttlePolicy;
 	m_maxQueueSize = static_cast<long>(queueThresholdFactor*numMessages);
 	init();
 }
@@ -85,12 +85,12 @@ void Application::send()
 				now = posix_time::microsec_clock::universal_time();
 				publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
 				m_InternalQueue.pop_front();
-				m_throttlePolicy.storeTimeStamp(now);
+				m_throttlePolicy->storeTimeStamp(now);
 				publishStatus = true;
 			}
 
 			// Now get the amount of time we have to wait in order to publish the message from policy.
-			long waitTime = m_throttlePolicy.getWaitTimeMilliSeconds();
+			long waitTime = m_throttlePolicy->getWaitTimeMilliSeconds();
 			m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
 			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 

@@ -31,7 +31,7 @@ class Application
 private:
 	std::deque<Order> m_InternalQueue;					// This stores the incoming messages and sorts them in required order.
 	std::mutex m_mutex;									// Used to enable synchronization.
-	SlidingWindowThrottlePolicy m_throttlePolicy;		// The throttle policy is initialized here.
+	std::shared_ptr<ThrottlePolicy> m_throttlePolicy;	// The throttle policy is initialized here.
 	std::ifstream m_inputFileStream;					// The file from where the Orders are read.
 	std::ofstream m_outPutFileStream;					// The file to which dispatched orders are written.	
 	std::vector<std::string> m_badOrders;				// dump all invalid orders into this vector and later perhaps print it out in a log ?

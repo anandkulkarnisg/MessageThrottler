@@ -12,6 +12,8 @@
 
 using namespace std;
 
+typedef std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> bindCalls;
+
 int main(int argc, char* argv[])
 {
 	// Create Application Layer. The parameters are input stream from where orders are read and processed.
@@ -37,12 +39,12 @@ int main(int argc, char* argv[])
 	auto sendThreadFunc = std::bind(&Application::send, &app);
 	auto evictThreadFunc = std::bind(&Application::evict,&app);
 
-	std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> ThreadCalls;
-	ThreadCalls.emplace_back(recieveThreadFunc);
-	ThreadCalls.emplace_back(sendThreadFunc);
-	ThreadCalls.emplace_back(evictThreadFunc);
+	bindCalls threadCalls;
+	threadCalls.emplace_back(recieveThreadFunc);
+	threadCalls.emplace_back(sendThreadFunc);
+	threadCalls.emplace_back(evictThreadFunc);
 
-	for(auto& iter : ThreadCalls)
+	for(auto& iter : threadCalls)
 		results.emplace_back(pool.enqueue(iter));
 
 	// Wait for the threads to finish.

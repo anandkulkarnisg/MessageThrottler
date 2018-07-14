@@ -1,6 +1,7 @@
 #include<iostream>
 #include<string>
 #include<fstream>
+#include<functional>
 
 #include "Order.h"
 #include "OrderValidator.h"
@@ -10,6 +11,15 @@
 #include "ThreadPool.h"
 
 using namespace std;
+
+std::string classname(const std::type_info& info)
+{
+	int status;
+	char* rslt=abi::__cxa_demangle(info.name(),0,0,&status);
+	std::string result(rslt);
+	free(rslt);
+	return result;
+}
 
 int main(int argc, char* argv[])
 {
@@ -36,9 +46,13 @@ int main(int argc, char* argv[])
 	auto sendThreadFunc = std::bind(&Application::send, &app);
 	auto evictThreadFunc = std::bind(&Application::evict,&app);
 
-	results.emplace_back(pool.enqueue(recieveThreadFunc));
-	results.emplace_back(pool.enqueue(sendThreadFunc));
-	results.emplace_back(pool.enqueue(evictThreadFunc));
+	std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> ThreadCalls;
+	ThreadCalls.emplace_back(recieveThreadFunc);
+	ThreadCalls.emplace_back(sendThreadFunc);
+	ThreadCalls.emplace_back(evictThreadFunc);
+
+	for(auto& iter : ThreadCalls)
+		results.emplace_back(pool.enqueue(iter));
 
 	// Wait for the threads to finish.
 	// Now wait for the results.

@@ -12,15 +12,6 @@
 
 using namespace std;
 
-std::string classname(const std::type_info& info)
-{
-	int status;
-	char* rslt=abi::__cxa_demangle(info.name(),0,0,&status);
-	std::string result(rslt);
-	free(rslt);
-	return result;
-}
-
 int main(int argc, char* argv[])
 {
 	// Create Application Layer. The parameters are input stream from where orders are read and processed.

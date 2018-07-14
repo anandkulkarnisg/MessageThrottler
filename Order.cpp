@@ -73,6 +73,15 @@ bool operator < (const Order& lhs, const Order& rhs)
 		else
 			return(false);	
 	}
+	
+	// If both are not cancel then queue as per seqId.
+	if(lhs.getOrderType() != Order::orderRemove && rhs.getOrderType() != Order::orderRemove)
+	{
+		if(lhs.getOrderSequenceId() < rhs.getOrderSequenceId())
+			return(true);
+		else
+			return(false);
+	}
 }
 
 std::string Order::getOrderMessage() const

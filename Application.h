@@ -23,7 +23,7 @@ using namespace boost;
 // The second layer is running in another thread and is responsible for reading from deque and checking against the throttle policy.it waits for required delay time before sending the order.
 // The order sending simulation is done by writing it to a file here. In real world this will involve writing it over network to the destination.
 
-enum processingStatus { inprogress, finished };
+enum class processingStatus { inprogress, finished };
 
 class Application
 {

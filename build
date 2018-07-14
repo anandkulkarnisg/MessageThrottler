@@ -1,0 +1,9 @@
+#!/bin/bash
+
+rm -f *.o
+for sourceObject in $(ls *.cpp)
+do
+	g++ -c $sourceObject
+done
+
+g++ *.o -o Main.out -lpthread

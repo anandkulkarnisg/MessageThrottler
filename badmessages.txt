@@ -1,0 +1,4 @@
+Invalid orderSide : P. It should be either B/S | A,100004,P,100,103.50,SINTEXSYMBOL
+The order quantity has to be a +ve long. Currently it is : 0 | A,100005,B,0,103.50,SINTEXSYMBOL
+The order price has to be a +ve price. Currently it is : 0 | A,100006,S,100,0,SINTEXSYMBOL
+The order does not have a proper symbol Length of size 12. Please check | A,100007,S,100,103.40,SINTEX

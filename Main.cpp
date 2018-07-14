@@ -16,6 +16,8 @@ int main(int argc, char* argv[])
 	// Create Application Layer. The parameters are input stream from where orders are read and processed.
 	// The second parameter is the destination to which orders are written after waiting for specified period decided by policy of sliding window.
 	// Third and fourth parameter are the number of messages allowed and window Time in milli seconds.
+	// Fifth and sixth parameters are factor which will determine size of queue beyond which eviction will happen [ Ex:- In below case 25 * 100 = 2500 ]
+	// and how often [ number of seconds ] during which eviction thread keeps running.
 
 	// The below will invoke eviction policy frequently and will demo flushing of the queue often.
 	//Application   app("input.txt.full", "output.txt", "badmessages.txt", 100, 1000, 25, 20);      

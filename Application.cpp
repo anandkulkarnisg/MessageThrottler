@@ -69,7 +69,6 @@ void Application::send()
 {
 	boost::posix_time::ptime now;
 	Order publishOrder;
-	bool publishStatus = false;	
 
 	while(m_status != processingStatus::finished)
 	{
@@ -86,7 +85,6 @@ void Application::send()
 				publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
 				m_InternalQueue.pop_front();
 				m_throttlePolicy->storeTimeStamp(now);
-				publishStatus = true;
 			}
 
 			// Now get the amount of time we have to wait in order to publish the message from policy.
@@ -95,10 +93,7 @@ void Application::send()
 			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 
 			// Now we are ready to publish.
-			if(publishStatus)
-			{
-				m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
-			}
+			m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
 		}
 	}
 }

@@ -70,31 +70,26 @@ void Application::send()
 	boost::posix_time::ptime now;
 	Order publishOrder;
 
-	while(m_status != processingStatus::finished)
+	while(m_status != processingStatus::finished || !m_InternalQueue.empty())
 	{
 		// set the condition variable to verify that queue size is greater than zero.
-		while(m_InternalQueue.size() > 0)
-		{
-			std::unique_lock<std::mutex> lk(m_waitMutex);
-			m_waitForCondition.wait(lk, [this]{ return (this->m_InternalQueue.size() > 0); });
+		std::unique_lock<std::mutex> lk(m_mutex);
+		m_waitForCondition.wait(lk, [this]{ return(!this->m_InternalQueue.empty()); });
 
-			// First thing is to lock the deque and push in the order.
-			{
-				std::lock_guard<std::mutex> guard(m_mutex);
-				now = posix_time::microsec_clock::universal_time();
-				publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
-				m_InternalQueue.pop_front();
-				m_throttlePolicy->storeTimeStamp(now);
-			}
+		// First thing is to lock the deque and push in the order.
+		now = posix_time::microsec_clock::universal_time();
+		publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
+		m_InternalQueue.pop_front();
+		lk.unlock();		
+		m_throttlePolicy->storeTimeStamp(now);
 
-			// Now get the amount of time we have to wait in order to publish the message from policy.
-			long waitTime = m_throttlePolicy->getWaitTimeMilliSeconds();
-			m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
-			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+		// Now get the amount of time we have to wait in order to publish the message from policy.
+		long waitTime = m_throttlePolicy->getWaitTimeMilliSeconds();
+		m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
+		std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
 
-			// Now we are ready to publish.
-			m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
-		}
+		// Now we are ready to publish.
+		m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
 	}
 }
 
@@ -129,9 +124,9 @@ void Application::evict()
 
 void Application::closeStreams()
 {
-    m_inputFileStream.close();
-    m_outPutFileStream.close();
-    m_badMessageFileStream.close();
+	m_inputFileStream.close();
+	m_outPutFileStream.close();
+	m_badMessageFileStream.close();
 }
 
 Application::~Application()

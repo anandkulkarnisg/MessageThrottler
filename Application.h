@@ -40,7 +40,6 @@ private:
 	std::string m_badMessageStreamName;
 	std::ofstream m_badMessageFileStream;
 	std::condition_variable m_waitForCondition;
-	std::mutex m_waitMutex;
 	processingStatus m_status;
 	double m_queueThresholdFactor;				
 	long m_evictionExcutePolicy;	

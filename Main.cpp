@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.
 	// We try to solve this via building three std functions and send them to a generic threadPool executor. 
-	// Third threads runs eviction policy at specified periods of gap. In above case every 5 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
+	// Third threads runs eviction policy at specified periods of gap. In above case every 60 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
 
 	ThreadPool pool(4);
 	std::vector<std::future<void>> results;

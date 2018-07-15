@@ -58,7 +58,7 @@ public:
 	void pushBadOrder(const std::string&);			// store invalid or bad orders here.
 	void writeBadOrders();
 	void evict();									// This function evicts the messages from back of queue if the size grows more than specified threshold.
-
+	void closeStreams();							// Close the file streams required during processing.
 
 	~Application();
 

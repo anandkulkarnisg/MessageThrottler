@@ -54,6 +54,7 @@ int main(int argc, char* argv[])
 
 	// Towards the end dump all bad orders encountered to a file.
 	app.writeBadOrders();
+	app.closeStreams();
 
 	// Exit the process.
 	return(0);

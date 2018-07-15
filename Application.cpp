@@ -112,7 +112,6 @@ void Application::writeBadOrders()
 	{
 		m_badMessageFileStream << iter << std::endl;	
 	}
-	m_badMessageFileStream.close();
 }
 
 void Application::evict()
@@ -133,9 +132,14 @@ void Application::evict()
 	}
 }
 
-Application::~Application()
+void Application::closeStreams()
 {
-	m_inputFileStream.close();
-	m_outPutFileStream.close();
+    m_inputFileStream.close();
+    m_outPutFileStream.close();
+    m_badMessageFileStream.close();
 }
 
+Application::~Application()
+{
+
+}

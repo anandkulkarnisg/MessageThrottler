@@ -46,9 +46,10 @@ void Application::recieve()
 		{
 			std::tuple<std::pair<bool,std::string>,Order> message = validator.validateOrder(textLine);
 			std::pair<bool,std::string> messageStatus = std::get<0>(message);
-			Order sendInOrder = std::get<1>(message);
+
 			if(messageStatus.first)
 			{
+				Order sendInOrder = std::get<1>(message);
 				storeOrder(sendInOrder);
 				m_waitForCondition.notify_all();
 			}

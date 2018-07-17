@@ -1,9 +1,11 @@
 #!/bin/bash
 
+export CFLAGS=$1
 rm -f *.o
+
 for sourceObject in $(ls *.cpp)
 do
-	g++ -c $sourceObject
+	g++ $CFLAGS -c $sourceObject
 done
 
-g++ *.o -o Main.out -lpthread
+g++ $CFLAGS *.o -o Main.out -lpthread

@@ -24,7 +24,14 @@ void Application::storeOrder(const Order& orderRef)
 {
 	// First thing is to lock the deque and push in the order.
 	std::lock_guard<std::mutex> guard(m_mutex);
-	m_InternalQueue.push_back(orderRef);
+
+	// Slight improvement in performance may be achived if the cancel order is pushed at front rather than back [ in sorting ].
+	// This will reduce the number of positions moves required by the sorting as cancels are supposed to be ahead in queue.
+
+	if(orderRef.getOrderType() == Order::orderRemove)
+		m_InternalQueue.push_front(orderRef);
+	else
+		m_InternalQueue.push_back(orderRef);
 	std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
 }
 

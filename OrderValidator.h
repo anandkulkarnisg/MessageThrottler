@@ -20,6 +20,7 @@ class OrderValidator
 {
 private:
 	static long orderSequenceId;
+	static int orderLayoutTokens;
 
 public:
 	std::tuple<std::pair<bool,std::string>,Order> validateOrder(const std::string&);

@@ -1,6 +1,7 @@
 #include "OrderValidator.h"
 
 long OrderValidator::orderSequenceId = 0;
+int OrderValidator::orderLayoutTokens = 6;
 
 std::tuple<std::pair<bool,std::string>,Order> OrderValidator::validateOrder(const std::string& inputOrderString)
 {
@@ -19,7 +20,7 @@ std::tuple<std::pair<bool,std::string>,Order> OrderValidator::validateOrder(cons
 		orderItems.push_back(iter);
 
 	// If there are 5 elements then we are fine , else reject as bad message with different number of fields.
-	if(orderItems.size() != 6)
+	if(orderItems.size() != OrderValidator::orderLayoutTokens)
 	{
 		failMessage = "Invalid Message. Wrong number of tokens in the message. ";
 		failMessage += std::to_string(static_cast<long>(orderItems.size()));

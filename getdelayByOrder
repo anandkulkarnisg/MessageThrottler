@@ -12,8 +12,5 @@ grep -i "Waiting for " output.txt | awk '{print $3}' | sed "s/ //g" > ~/temp/out
 echo -e "OrderSeqenceId,delayInMilliSeconds" > orderDelaysStats.csv
 paste -d',' ~/temp/out1.txt ~/temp/out2.txt >> orderDelaysStats.csv
 
-# Get the 
-#select count OrderSequenceId by delayInMilliS\econds from table
-#select cnt:count OrderSeqenceId by delayInMilliSeconds from table
- 
-
+# Get the break down via running the below kdb/q script getStats.q 
+$PWD/runStats.sh 

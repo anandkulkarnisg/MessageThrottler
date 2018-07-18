@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# From the output.txt collect in a csv format file the delays each order encountered , perhaps this csv can be loaded into a kdb database and analyzed for breakdown of different types of delays.
+# First seperate the log files into two seperate files for merging.
+
+grep -i "Publishing the Order = orderSequenceId = " output.txt | awk -F"," '{print $1}' | awk -F"=" '{print $3}' | sed "s/ //g" > ~/temp/out1.txt
+grep -i "Waiting for " output.txt | awk '{print $3}' | sed "s/ //g" > ~/temp/out2.txt 
+
+# Merge the files side by side.
+# First generate the header for the file.
+
+echo -e "OrderSeqenceId,delayInMilliSeconds" > orderDelaysStats.csv
+paste -d',' ~/temp/out1.txt ~/temp/out2.txt >> orderDelaysStats.csv
+
+# Get the 
+#select count OrderSequenceId by delayInMilliS\econds from table
+#select cnt:count OrderSeqenceId by delayInMilliSeconds from table
+ 
+

@@ -1,8 +1,11 @@
 #include "Application.h"
 
 // Constructor initialize the input and output streams. Also initializes the policy for throttling with number of messages and amount of dealy interval.
-Application::Application(const std::string& inputStream, const std::string& outputStream, const std::string& badMessageStreamName, 
-		const int& numMessages, const long& milliSecondTimeWindow, const double& queueThresholdFactor, const long& evictionExcutePolicy) : 
+Application::Application(const std::string& inputStream, const std::string& outputStream, 
+						 const std::string& badMessageStreamName, const int& numMessages, 
+						 const long& milliSecondTimeWindow, const double& queueThresholdFactor, 
+						 const long& evictionExcutePolicy) : 
+
 	m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
 	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy) 
 {

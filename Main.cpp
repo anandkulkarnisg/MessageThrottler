@@ -1,18 +1,9 @@
 #include<iostream>
 #include<string>
-#include<fstream>
-#include<functional>
 
-#include "Order.h"
-#include "OrderValidator.h"
-#include "SlidingWindowThrottlePolicy.h"
 #include "Application.h"
 
-#include "ThreadPool.h"
-
 using namespace std;
-
-typedef std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> bindCalls;
 
 int main(int argc, char* argv[])
 {
@@ -32,29 +23,7 @@ int main(int argc, char* argv[])
 	// We try to solve this via building three std functions and send them to a generic threadPool executor. 
 	// Third threads runs eviction policy at specified periods of gap. In above case every 60 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
 
-	ThreadPool pool(4);
-	std::vector<std::future<void>> results;
-
-	auto recieveThreadFunc = std::bind(&Application::recieve, &app); 
-	auto sendThreadFunc = std::bind(&Application::send, &app);
-	auto evictThreadFunc = std::bind(&Application::evict,&app);
-
-	bindCalls threadCalls;
-	threadCalls.emplace_back(recieveThreadFunc);
-	threadCalls.emplace_back(sendThreadFunc);
-	threadCalls.emplace_back(evictThreadFunc);
-
-	for(auto& iter : threadCalls)
-		results.emplace_back(pool.enqueue(iter));
-
-	// Wait for the threads to finish.
-	// Now wait for the results.
-	for(auto&& iter : results)
-		iter.get();
-
-	// Towards the end dump all bad orders encountered to a file.
-	app.writeBadOrders();
-	app.closeStreams();
+	app.run();
 
 	// Exit the process.
 	return(0);

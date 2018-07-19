@@ -4,11 +4,14 @@
 #include<fstream>
 #include<chrono>
 #include<thread>
+#include<functional>
 #include<condition_variable>
 
 #include "Order.h"
 #include "OrderValidator.h"
 #include "SlidingWindowThrottlePolicy.h"
+
+#include "ThreadPool.h"
 
 using namespace std;
 using namespace boost;
@@ -58,9 +61,12 @@ public:
 	void writeBadOrders();
 	void evict();									// This function evicts the messages from back of queue if the size grows more than specified threshold.
 	void closeStreams();							// Close the file streams required during processing.
+	void run();										// run layer runs all the logic of the application.
 
 	~Application();
 
 };
+
+typedef std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> bindCalls;
 
 #endif

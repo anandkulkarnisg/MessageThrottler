@@ -140,6 +140,33 @@ void Application::closeStreams()
 	m_badMessageFileStream.close();
 }
 
+void Application::run()
+{
+    ThreadPool pool(4);
+    std::vector<std::future<void>> results;
+
+    auto recieveThreadFunc = std::bind(&Application::recieve, this);
+    auto sendThreadFunc = std::bind(&Application::send, this);
+    auto evictThreadFunc = std::bind(&Application::evict, this);
+
+    bindCalls threadCalls;
+    threadCalls.emplace_back(recieveThreadFunc);
+    threadCalls.emplace_back(sendThreadFunc);
+    threadCalls.emplace_back(evictThreadFunc);
+
+    for(auto& iter : threadCalls)
+        results.emplace_back(pool.enqueue(iter));
+
+    // Wait for the threads to finish.
+    // Now wait for the results.
+    for(auto&& iter : results)
+        iter.get();
+
+    // Towards the end dump all bad orders encountered to a file.
+    this->writeBadOrders();
+    this->closeStreams();
+}
+
 Application::~Application()
 {
 

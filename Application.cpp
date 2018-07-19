@@ -149,11 +149,9 @@ void Application::run()
     auto sendThreadFunc = std::bind(&Application::send, this);
     auto evictThreadFunc = std::bind(&Application::evict, this);
 
-    bindCalls threadCalls;
-    threadCalls.emplace_back(recieveThreadFunc);
-    threadCalls.emplace_back(sendThreadFunc);
-    threadCalls.emplace_back(evictThreadFunc);
+    bindCalls threadCalls = { recieveThreadFunc, sendThreadFunc, evictThreadFunc };
 
+	// Submit the application calls to different threads in a thread pool.
     for(auto& iter : threadCalls)
         results.emplace_back(pool.enqueue(iter));
 

@@ -2,6 +2,8 @@
 #include<string>
 #include<tuple>
 #include<boost/tokenizer.hpp>
+#include <boost/core/noncopyable.hpp>
+
 #include "Order.h"
 
 using namespace std;
@@ -16,7 +18,7 @@ using namespace boost;
 #ifndef OrderValidator_H
 #define OrderValidator_H
 
-class OrderValidator
+class OrderValidator : private boost::noncopyable
 {
 private:
 	static long orderSequenceId;

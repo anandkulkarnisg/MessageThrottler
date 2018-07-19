@@ -23,7 +23,7 @@ void Application::init()
 	m_status = processingStatus::inprogress;
 }
 
-void Application::storeOrder(const Order& orderRef)
+void Application::storeOrder(const Order&& orderRef)
 {
 	// First thing is to lock the deque and push in the order.
 	std::lock_guard<std::mutex> guard(m_mutex);
@@ -32,9 +32,9 @@ void Application::storeOrder(const Order& orderRef)
 	// This will reduce the number of positions moves required by the sorting as cancels are supposed to be ahead in queue.
 
 	if(orderRef.getOrderType() == Order::orderRemove)
-		m_InternalQueue.push_front(orderRef);
+		m_InternalQueue.emplace_front(orderRef);
 	else
-		m_InternalQueue.push_back(orderRef);
+		m_InternalQueue.emplace_back(orderRef);
 	std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
 }
 
@@ -60,7 +60,7 @@ void Application::recieve()
 			if(messageStatus.first)
 			{
 				Order sendInOrder = std::get<1>(message);
-				storeOrder(sendInOrder);
+				storeOrder(std::move(sendInOrder));
 				m_waitForCondition.notify_all();
 			}
 			else

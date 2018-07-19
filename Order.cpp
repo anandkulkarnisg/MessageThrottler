@@ -45,6 +45,29 @@ Order& Order::operator=(const Order& assignRef)
 	return(*this);
 }
 
+Order::Order(Order&& moveRef)
+{
+	this->m_orderSequenceId = moveRef.m_orderSequenceId;
+    this->m_orderId = moveRef.m_orderId;
+    this->m_orderSide = moveRef.m_orderSide;
+    this->m_orderSize = moveRef.m_orderSize;
+    this->m_orderType = moveRef.m_orderType;
+    this->m_orderPrice = moveRef.m_orderPrice;
+    this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+}
+
+Order& Order::operator=(Order&& moveRef)
+{
+    this->m_orderSequenceId = moveRef.m_orderSequenceId;
+    this->m_orderId = moveRef.m_orderId;
+    this->m_orderSide = moveRef.m_orderSide;
+    this->m_orderSize = moveRef.m_orderSize;
+    this->m_orderType = moveRef.m_orderType;
+    this->m_orderPrice = moveRef.m_orderPrice;
+    this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+    return(*this);
+}
+
 // All getters are below.
 long Order::getOrderSequenceId() const { return(m_orderSequenceId); }
 long Order::getOrderId() const { return(m_orderId); }

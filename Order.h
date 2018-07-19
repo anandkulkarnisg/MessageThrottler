@@ -34,7 +34,11 @@ class Order
 		Order(const long&, const long&, const char&, const char&, const double&, const long&, const std::string&);
 		Order(const Order&);
 		Order& operator=(const Order&);
-
+	
+		// Move constructors.
+		Order(Order&&);
+		Order& operator=(Order&&);
+	
 		// some important Getters are included here.
 		long getOrderSequenceId() const;
 		long getOrderId() const;

@@ -54,7 +54,7 @@ public:
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
 
-	void storeOrder(const Order&);					// Stores the incoming order into deque and marks its timestamp into the throttle policy.
+	void storeOrder(const Order&&);					// Stores the incoming order into deque and marks its timestamp into the throttle policy.
 	void send();									// Get order from input source and store it in the queue.
 	void recieve();									// Get order from front of deque and publish it out.
 	void pushBadOrder(const std::string&);			// store invalid or bad orders here.

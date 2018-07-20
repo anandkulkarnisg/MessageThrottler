@@ -53,6 +53,8 @@ public:
 	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&);
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
+	Application(Application&& ) = delete;
+	Application& operator=(Application&& ) = delete;
 
 	void storeOrder(const Order&&);					// Stores the incoming order into deque and marks its timestamp into the throttle policy.
 	void send();									// Get order from input source and store it in the queue.

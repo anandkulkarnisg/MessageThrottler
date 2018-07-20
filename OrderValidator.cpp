@@ -19,7 +19,7 @@ std::tuple<std::pair<bool,std::string>,Order> OrderValidator::validateOrder(cons
 	for(const auto& iter : tokens)
 		orderItems.push_back(iter);
 
-	// If there are 5 elements then we are fine , else reject as bad message with different number of fields.
+	// If there are 6 elements then we are fine , else reject as bad message with different number of fields.
 	if(orderItems.size() != OrderValidator::orderLayoutTokens)
 	{
 		failMessage = "Invalid Message. Wrong number of tokens in the message. ";

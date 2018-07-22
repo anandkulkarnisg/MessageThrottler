@@ -54,6 +54,8 @@ Order::Order(Order&& moveRef)
     this->m_orderType = moveRef.m_orderType;
     this->m_orderPrice = moveRef.m_orderPrice;
     this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+	moveRef.m_orderSymbolName = "";	
+
 }
 
 Order& Order::operator=(Order&& moveRef)
@@ -65,6 +67,7 @@ Order& Order::operator=(Order&& moveRef)
     this->m_orderType = moveRef.m_orderType;
     this->m_orderPrice = moveRef.m_orderPrice;
     this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+	moveRef.m_orderSymbolName = "";
     return(*this);
 }
 

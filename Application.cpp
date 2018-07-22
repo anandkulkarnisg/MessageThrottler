@@ -54,7 +54,7 @@ void Application::recieve()
 		getline(m_inputFileStream, textLine);
 		if(textLine.length()>0)
 		{
-			std::tuple<std::pair<bool,std::string>,Order> message = validator.validateOrder(textLine);
+			std::tuple<std::pair<bool,std::string>,Order> message = std::move(validator.validateOrder(textLine));
 			std::pair<bool,std::string> messageStatus = std::get<0>(message);
 
 			if(messageStatus.first)

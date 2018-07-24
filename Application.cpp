@@ -35,7 +35,10 @@ void Application::storeOrder(const Order&& orderRef)
 		m_InternalQueue.emplace_front(orderRef);
 	else
 		m_InternalQueue.emplace_back(orderRef);
-	std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
+
+	// If we have a cancel order only then attempt a sort else all the incoming orders are naturally queued according to their seqId / arrival time.
+	if(orderRef.getOrderType() == Order::orderRemove)
+		std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
 }
 
 void Application::pushBadOrder(const std::string& pushBadOrderMessage)

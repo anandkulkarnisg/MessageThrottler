@@ -8,7 +8,7 @@
 						    delayInMilliSeconds = "1000"
 						    double queueFactor = "25"
 						    long evictionDelayInSecs = "60" 
-							int threadPoolSize = "4"						
+							int threadPoolSize = "3"						
 	> 
    </ThrottleAppSettings>
 </root>

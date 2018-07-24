@@ -47,6 +47,7 @@ private:
 	double m_queueThresholdFactor;				
 	long m_evictionExcutePolicy;	
 	long m_maxQueueSize;
+	int m_threadPoolSize;
 	void init();
 
     void storeOrder(const Order&&);                 // Stores the incoming order into deque and marks its timestamp into the throttle policy.
@@ -58,7 +59,7 @@ private:
     void closeStreams();                            // Close the file streams required during processing.
 
 public:
-	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&);
+	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&, const int&);
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
 	Application(Application&& ) = delete;

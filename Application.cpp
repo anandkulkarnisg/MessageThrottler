@@ -4,10 +4,10 @@
 Application::Application(const std::string& inputStream, const std::string& outputStream, 
 						 const std::string& badMessageStreamName, const int& numMessages, 
 						 const long& milliSecondTimeWindow, const double& queueThresholdFactor, 
-						 const long& evictionExcutePolicy) : 
+						 const long& evictionExcutePolicy, const int& threadPoolSize) : 
 
 	m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
-	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy) 
+	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy), m_threadPoolSize(threadPoolSize) 
 {
 	std::shared_ptr<ThrottlePolicy> throttlePolicy(new SlidingWindowThrottlePolicy(numMessages, milliSecondTimeWindow));
 	m_throttlePolicy = throttlePolicy;
@@ -142,7 +142,7 @@ void Application::closeStreams()
 
 void Application::run()
 {
-    ThreadPool pool(4);
+    ThreadPool pool(m_threadPoolSize);
     std::vector<std::future<void>> results;
 
     auto recieveThreadFunc = std::bind(&Application::recieve, this);

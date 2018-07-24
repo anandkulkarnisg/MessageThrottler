@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<root>
+   <ThrottleAppSettings 
+						    inputFeedFile = "input.txt.full"  
+							outputPublishFile = "output.txt" 
+							badMessagesFile = "badmessages.txt"
+						    numMessages = "100"
+						    delayInMilliSeconds = "1000"
+						    double queueFactor = "25"
+						    long evictionDelayInSecs = "60" 
+							int threadPoolSize = "4"						
+	> 
+   </ThrottleAppSettings>
+</root>

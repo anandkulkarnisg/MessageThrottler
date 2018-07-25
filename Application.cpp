@@ -32,13 +32,13 @@ void Application::storeOrder(const Order&& orderRef)
 	// This will reduce the number of positions moves required by the sorting as cancels are supposed to be ahead in queue.
 
 	if(orderRef.getOrderType() == Order::orderRemove)
+	{
+		// If we have a cancel order only then attempt a sort else all the incoming orders are naturally queued according to their seqId / arrival time.
 		m_InternalQueue.emplace_front(orderRef);
+		std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
+	}
 	else
 		m_InternalQueue.emplace_back(orderRef);
-
-	// If we have a cancel order only then attempt a sort else all the incoming orders are naturally queued according to their seqId / arrival time.
-	if(orderRef.getOrderType() == Order::orderRemove)
-		std::sort(m_InternalQueue.begin(), m_InternalQueue.end(), less<Order>());
 }
 
 void Application::pushBadOrder(const std::string& pushBadOrderMessage)

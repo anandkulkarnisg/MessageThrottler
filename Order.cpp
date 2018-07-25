@@ -11,7 +11,7 @@ const int Order::orderSymbolLength = 12;
 
 Order::Order()
 {
-	
+
 }
 
 // Default Constructor parameterized.
@@ -48,27 +48,27 @@ Order& Order::operator=(const Order& assignRef)
 Order::Order(Order&& moveRef)
 {
 	this->m_orderSequenceId = moveRef.m_orderSequenceId;
-    this->m_orderId = moveRef.m_orderId;
-    this->m_orderSide = moveRef.m_orderSide;
-    this->m_orderSize = moveRef.m_orderSize;
-    this->m_orderType = moveRef.m_orderType;
-    this->m_orderPrice = moveRef.m_orderPrice;
-    this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+	this->m_orderId = moveRef.m_orderId;
+	this->m_orderSide = moveRef.m_orderSide;
+	this->m_orderSize = moveRef.m_orderSize;
+	this->m_orderType = moveRef.m_orderType;
+	this->m_orderPrice = moveRef.m_orderPrice;
+	this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
 	moveRef.m_orderSymbolName = "";	
 
 }
 
 Order& Order::operator=(Order&& moveRef)
 {
-    this->m_orderSequenceId = moveRef.m_orderSequenceId;
-    this->m_orderId = moveRef.m_orderId;
-    this->m_orderSide = moveRef.m_orderSide;
-    this->m_orderSize = moveRef.m_orderSize;
-    this->m_orderType = moveRef.m_orderType;
-    this->m_orderPrice = moveRef.m_orderPrice;
-    this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
+	this->m_orderSequenceId = moveRef.m_orderSequenceId;
+	this->m_orderId = moveRef.m_orderId;
+	this->m_orderSide = moveRef.m_orderSide;
+	this->m_orderSize = moveRef.m_orderSize;
+	this->m_orderType = moveRef.m_orderType;
+	this->m_orderPrice = moveRef.m_orderPrice;
+	this->m_orderSymbolName = std::move(moveRef.m_orderSymbolName);
 	moveRef.m_orderSymbolName = "";
-    return(*this);
+	return(*this);
 }
 
 // All getters are below.
@@ -99,7 +99,7 @@ bool operator < (const Order& lhs, const Order& rhs)
 		else
 			return(false);	
 	}
-	
+
 	// If both are not cancel then queue as per seqId.
 	if(lhs.getOrderType() != Order::orderRemove && rhs.getOrderType() != Order::orderRemove)
 	{

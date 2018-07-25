@@ -92,22 +92,13 @@ bool operator < (const Order& lhs, const Order& rhs)
 		return(false);
 
 	// If both are cancels then seqId / arrival timestamp gets priority.
-	if(lhs.getOrderType() == Order::orderRemove && rhs.getOrderType() == Order::orderRemove)
-	{
-		if(lhs.getOrderSequenceId() < rhs.getOrderSequenceId())
-			return(true);
-		else
-			return(false);	
-	}
-
 	// If both are not cancel then queue as per seqId.
-	if(lhs.getOrderType() != Order::orderRemove && rhs.getOrderType() != Order::orderRemove)
-	{
-		if(lhs.getOrderSequenceId() < rhs.getOrderSequenceId())
-			return(true);
-		else
-			return(false);
-	}
+	// The check is also not required if both are cancel types or not cancel types. Because above code would catch all other case types.
+
+	if(lhs.getOrderSequenceId() < rhs.getOrderSequenceId())
+		return(true);
+	else
+		return(false);	
 }
 
 std::string Order::getOrderMessage() const
@@ -135,5 +126,4 @@ std::string Order::getOrderMessage() const
 	returnMessage += m_orderSymbolName;
 	return(returnMessage);
 }
-
 

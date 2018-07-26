@@ -31,7 +31,7 @@ void Application::storeOrder(const Order&& orderRef)
 	// Slight improvement in performance may be achived if the cancel order is pushed at front rather than back [ in sorting ].
 	// This will reduce the number of positions moves required by the sorting as cancels are supposed to be ahead in queue.
 
-	if(orderRef.getOrderType() == Order::orderRemove)
+	if(orderRef.getOrderType() == Order::orderCancel)
 	{
 		// If we have a cancel order only then attempt a sort else all the incoming orders are naturally queued according to their seqId / arrival time.
 		m_InternalQueue.emplace_front(orderRef);

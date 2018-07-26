@@ -37,7 +37,7 @@ std::tuple<std::pair<bool,std::string>,Order> OrderValidator::validateOrder(cons
 	}
 
 	// Order type should be either A/X/M.
-	if(std::toupper(orderType[0]) != Order::orderAddition && std::toupper(orderType[0]) != Order::orderRemove && std::toupper(orderType[0]) != Order::orderModify)
+	if(std::toupper(orderType[0]) != Order::orderNew && std::toupper(orderType[0]) != Order::orderCancel && std::toupper(orderType[0]) != Order::orderModify)
 	{
 		failMessage = "Invalid order action type : " + orderType + ". It should be either A(Add)/X(Remove)/M(Modify)";
 		return(std::make_tuple(std::make_pair(false,failMessage),invalidOrder));

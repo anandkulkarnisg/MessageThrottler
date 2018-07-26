@@ -4,7 +4,7 @@ orderId=100001
 
 getOrderType()
 {
-if [ "$1" = "A" ]; then
+if [ "$1" = "N" ]; then
 	echo "M"
 fi
 
@@ -13,13 +13,13 @@ if [ "$1" = "M" ]; then
 fi
 
 if [ "$1" = "X" ]; then
-	echo "A"
+	echo "N"
 fi
 }
 
 
 cat /dev/null > input.txt.full
-orderType="A"
+orderType="N"
 for iterator in $(seq 10000)
 do
 	orderType=$(getOrderType $orderType)

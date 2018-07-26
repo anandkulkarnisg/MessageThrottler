@@ -1,8 +1,8 @@
 #include "Order.h"
 
-const char Order::orderAddition = 'A';
+const char Order::orderNew = 'N';
 const char Order::orderModify   = 'M';
-const char Order::orderRemove   = 'X';
+const char Order::orderCancel   = 'X';
 
 const char Order::orderTypeBuy = 'B';
 const char Order::orderTypeSell = 'S';
@@ -85,10 +85,10 @@ std::string Order::getOrderSymbolName() const { return(m_orderSymbolName); }
 bool operator < (const Order& lhs, const Order& rhs)
 {
 	// First priority is given to cancel orders to move ahead. 
-	if(lhs.getOrderType() == Order::orderRemove && rhs.getOrderType() != Order::orderRemove)
+	if(lhs.getOrderType() == Order::orderCancel && rhs.getOrderType() != Order::orderCancel)
 		return(true);
 
-	if(rhs.getOrderType() == Order::orderRemove && lhs.getOrderType() != Order::orderRemove)
+	if(rhs.getOrderType() == Order::orderCancel && lhs.getOrderType() != Order::orderCancel)
 		return(false);
 
 	// If both are cancels then seqId / arrival timestamp gets priority.

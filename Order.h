@@ -20,9 +20,9 @@ class Order
 		// Addition is the initial arrival of the Order for first time.
 		// Modification and removal are the other two states of the order.
 
-		static const char orderAddition;
+		static const char orderNew;
 		static const char orderModify;
-		static const char orderRemove;
+		static const char orderCancel;
 
 		static const char orderTypeBuy;
 		static const char orderTypeSell;

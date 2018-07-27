@@ -3,22 +3,9 @@
 
 #include "Application.h"
 #include "CppXMLConfigReader.h"
+#include "Logger.h"
 
 using namespace std;
-
-log4cpp::Category& createLogger(const std::string& outputStreamName)
-{
-	//Setting up Appender, layout and Category.
-	log4cpp::Appender *appender = new log4cpp::FileAppender("FileAppender", outputStreamName.c_str());
-	log4cpp::Layout *myLayout = new log4cpp::PatternLayout();
-	((log4cpp::PatternLayout*) myLayout)->setConversionPattern("%d %-5p [[%c]] - %m%n");
-	log4cpp::Category& category = log4cpp::Category::getInstance("ThrottlePolicy");
-
-	appender->setLayout(myLayout);
-	category.setAppender(appender);
-	category.setPriority(log4cpp::Priority::INFO);
-	return(category);
-}
 
 int main(int argc, char* argv[])
 {
@@ -54,7 +41,7 @@ int main(int argc, char* argv[])
 	int threadPoolSize = configReader.getIntValue("threadPoolSize", 4);		
 	int publishThreads= configReader.getIntValue("numPublishers", 4);
 
-	log4cpp::Category& logger = createLogger(outputPublishFile); 
+	log4cpp::Category& logger = Logger::createLogger(outputPublishFile); 
 	Application app(inputFeedFile, outputPublishFile, badMessagesFile, numMessages, delayInMilliSeconds, queueFactor, evictionDelayInSecs, threadPoolSize, publishThreads, logger);
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.

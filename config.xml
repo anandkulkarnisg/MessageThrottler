@@ -6,9 +6,10 @@
 							badMessagesFile = "badmessages.txt"
 						    numMessages = "100"
 						    delayInMilliSeconds = "1000"
-						    double queueFactor = "25"
-						    long evictionDelayInSecs = "60" 
-							int threadPoolSize = "3"						
+						    queueFactor = "25"
+						    evictionDelayInSecs = "60" 
+							threadPoolSize = "10"
+							numPublishers = "4"	
 	> 
    </ThrottleAppSettings>
 </root>

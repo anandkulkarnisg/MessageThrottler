@@ -2,12 +2,14 @@
 
 // Constructor initialize the input and output streams. Also initializes the policy for throttling with number of messages and amount of dealy interval.
 Application::Application(const std::string& inputStream, const std::string& outputStream, 
-						 const std::string& badMessageStreamName, const int& numMessages, 
-						 const long& milliSecondTimeWindow, const double& queueThresholdFactor, 
-						 const long& evictionExcutePolicy, const int& threadPoolSize) : 
+		const std::string& badMessageStreamName, const int& numMessages, 
+		const long& milliSecondTimeWindow, const double& queueThresholdFactor, 
+		const long& evictionExcutePolicy, const int& threadPoolSize,
+		const int& numPublisherThreads, log4cpp::Category& logger) : 
 
 	m_inputStreamName(inputStream),m_outputStreamName(outputStream) , m_badMessageStreamName(badMessageStreamName), 
-	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy), m_threadPoolSize(threadPoolSize) 
+	m_queueThresholdFactor(queueThresholdFactor), m_evictionExcutePolicy(evictionExcutePolicy), m_threadPoolSize(threadPoolSize), 
+	m_numPublisherThreads(numPublisherThreads) , m_logger(logger) 
 {
 	std::shared_ptr<ThrottlePolicy> throttlePolicy(new SlidingWindowThrottlePolicy(numMessages, milliSecondTimeWindow));
 	m_throttlePolicy = throttlePolicy;
@@ -19,8 +21,16 @@ void Application::init()
 {
 	// Initialize the streams here.
 	m_inputFileStream.open(m_inputStreamName, std::ifstream::in);	
-	m_outPutFileStream.open(m_outputStreamName);
 	m_status = processingStatus::inprogress;
+}
+
+std::string Application::getThreadId(const std::thread::id& id)
+{
+	std::lock_guard<std::mutex> guard(m_mutex);
+	stringstream ss;
+	ss << id;
+	string myString = ss.str();		
+	return(myString);
 }
 
 void Application::storeOrder(const Order&& orderRef)
@@ -83,6 +93,7 @@ void Application::send()
 {
 	boost::posix_time::ptime now;
 	Order publishOrder;
+	std::string workerId = getThreadId(std::this_thread::get_id());
 
 	while(m_status != processingStatus::finished || !m_InternalQueue.empty())
 	{
@@ -90,20 +101,30 @@ void Application::send()
 		std::unique_lock<std::mutex> lk(m_mutex);
 		m_waitForCondition.wait(lk, [this]{ return(!this->m_InternalQueue.empty()); });
 
-		// First thing is to lock the deque and push in the order.
-		now = posix_time::microsec_clock::universal_time();
-		publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
-		m_InternalQueue.pop_front();
-		lk.unlock();		
-		m_throttlePolicy->storeTimeStamp(now);
+		if(!this->m_InternalQueue.empty())
+		{
+			// First thing is to lock the deque and push in the order.
+			now = posix_time::microsec_clock::universal_time();
+			publishOrder = m_InternalQueue[0]; // Pick the front of the queue.
+			m_InternalQueue.pop_front();
+			m_throttlePolicy->storeTimeStamp(now);
 
-		// Now get the amount of time we have to wait in order to publish the message from policy.
-		long waitTime = m_throttlePolicy->getWaitTimeMilliSeconds();
-		m_outPutFileStream << "Waiting for " << waitTime << " MilliSeconds as per policy" << std::endl;
-		std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+			// Now get the amount of time we have to wait in order to publish the message from policy.
+			long waitTime = m_throttlePolicy->getWaitTimeMilliSeconds();
+			lk.unlock();
 
-		// Now we are ready to publish.
-		m_outPutFileStream << "Publishing the Order = " << publishOrder.getOrderMessage() << std::endl;
+			std::string logMessage = "Worker id : " + workerId;
+			logMessage += " : Waiting for " + std::to_string(waitTime);
+			logMessage += " MilliSeconds as per policy";
+			m_logger.info(logMessage);
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(waitTime));
+
+			// Now we are ready to publish.
+			logMessage = "Worker id : " + workerId; 
+			logMessage += " : Publishing the Order = " + publishOrder.getOrderMessage();
+			m_logger.info(logMessage);
+		}
 	}
 }
 
@@ -139,33 +160,37 @@ void Application::evict()
 void Application::closeStreams()
 {
 	m_inputFileStream.close();
-	m_outPutFileStream.close();
 	m_badMessageFileStream.close();
 }
 
 void Application::run()
 {
-    ThreadPool pool(m_threadPoolSize);
-    std::vector<std::future<void>> results;
+	ThreadPool pool(m_threadPoolSize);
+	std::vector<std::future<void>> results;
 
-    auto recieveThreadFunc = std::bind(&Application::recieve, this);
-    auto sendThreadFunc = std::bind(&Application::send, this);
-    auto evictThreadFunc = std::bind(&Application::evict, this);
+	auto recieveThreadFunc = std::bind(&Application::recieve, this);
+	auto evictThreadFunc = std::bind(&Application::evict, this);
 
-    bindCalls threadCalls = { recieveThreadFunc, sendThreadFunc, evictThreadFunc };
+	bindCalls threadCalls = { recieveThreadFunc, evictThreadFunc };
+
+	for(int i=0; i<m_numPublisherThreads; ++i)
+	{
+		auto sendThreadFunc = std::bind(&Application::send, this);
+		threadCalls.emplace_back(sendThreadFunc);
+	}
 
 	// Submit the application calls to different threads in a thread pool.
-    for(auto& iter : threadCalls)
-        results.emplace_back(pool.enqueue(iter));
+	for(auto& iter : threadCalls)
+		results.emplace_back(pool.enqueue(iter));
 
-    // Wait for the threads to finish.
-    // Now wait for the results.
-    for(auto&& iter : results)
-        iter.get();
+	// Wait for the threads to finish.
+	// Now wait for the results.
+	for(auto&& iter : results)
+		iter.get();
 
-    // Towards the end dump all bad orders encountered to a file.
-    this->writeBadOrders();
-    this->closeStreams();
+	// Towards the end dump all bad orders encountered to a file.
+	this->writeBadOrders();
+	this->closeStreams();
 }
 
 Application::~Application()

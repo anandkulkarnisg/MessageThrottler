@@ -8,5 +8,5 @@ do
 	g++ -std=c++14 $CFLAGS -c $sourceObject
 done
 
-g++ -std=c++11 $CFLAGS *.o -o Main.out -lpthread -L. -lCppConfigManager -lxerces-c
+g++ -std=c++11 $CFLAGS *.o -o Main.out -lpthread -L. -lCppConfigManager -lxerces-c -llog4cpp
 strip Main.out

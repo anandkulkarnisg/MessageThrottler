@@ -6,6 +6,20 @@
 
 using namespace std;
 
+log4cpp::Category& createLogger(const std::string& outputStreamName)
+{
+	//Setting up Appender, layout and Category.
+	log4cpp::Appender *appender = new log4cpp::FileAppender("FileAppender", outputStreamName.c_str());
+	log4cpp::Layout *myLayout = new log4cpp::PatternLayout();
+	((log4cpp::PatternLayout*) myLayout)->setConversionPattern("%d %-5p [[%c]] - %m%n");
+	log4cpp::Category& category = log4cpp::Category::getInstance("ThrottlePolicy");
+
+	appender->setLayout(myLayout);
+	category.setAppender(appender);
+	category.setPriority(log4cpp::Priority::INFO);
+	return(category);
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -38,14 +52,19 @@ int main(int argc, char* argv[])
 	double queueFactor = configReader.getDoubleValue("queueFactor", 25);
 	long evictionDelayInSecs = configReader.getLongValue("evictionDelayInSecs", 60);
 	int threadPoolSize = configReader.getIntValue("threadPoolSize", 4);		
+	int publishThreads= configReader.getIntValue("numPublishers", 4);
 
-	Application app(inputFeedFile, outputPublishFile, badMessagesFile, numMessages, delayInMilliSeconds, queueFactor, evictionDelayInSecs, threadPoolSize);
+	log4cpp::Category& logger = createLogger(outputPublishFile); 
+	Application app(inputFeedFile, outputPublishFile, badMessagesFile, numMessages, delayInMilliSeconds, queueFactor, evictionDelayInSecs, threadPoolSize, publishThreads, logger);
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.
 	// We try to solve this via building three std functions and send them to a generic threadPool executor. 
 	// Third threads runs eviction policy at specified periods of gap. In above case every 60 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
 
 	app.run();
+
+	// Shutdown the application logging.
+	log4cpp::Category::shutdown();
 
 	// Exit the process.
 	return(0);

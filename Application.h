@@ -6,6 +6,12 @@
 #include<thread>
 #include<functional>
 #include<condition_variable>
+#include<sstream>
+
+#include <log4cpp/Category.hh>
+#include <log4cpp/FileAppender.hh>
+#include <log4cpp/BasicLayout.hh>
+#include <log4cpp/PatternLayout.hh>
 
 #include "Order.h"
 #include "OrderValidator.h"
@@ -36,7 +42,6 @@ private:
 	std::mutex m_mutex;									// Used to enable synchronization.
 	std::shared_ptr<ThrottlePolicy> m_throttlePolicy;	// The throttle policy is initialized here.
 	std::ifstream m_inputFileStream;					// The file from where the Orders are read.
-	std::ofstream m_outPutFileStream;					// The file to which dispatched orders are written.	
 	std::vector<std::string> m_badOrders;				// dump all invalid orders into this vector and later perhaps print it out in a log ?
 	std::string m_inputStreamName;
 	std::string m_outputStreamName;
@@ -48,18 +53,22 @@ private:
 	long m_evictionExcutePolicy;	
 	long m_maxQueueSize;
 	int m_threadPoolSize;
-	void init();
+	int m_numPublisherThreads;
+	log4cpp::Category& m_logger;						// The logger handle used to log all working to a log file
 
-    void storeOrder(const Order&&);                 // Stores the incoming order into deque and marks its timestamp into the throttle policy.
-    void send();                                    // Get order from input source and store it in the queue.
-    void recieve();                                 // Get order from front of deque and publish it out.
-    void pushBadOrder(const std::string&);          // store invalid or bad orders here.
+	void init();
+    void storeOrder(const Order&&);						// Stores the incoming order into deque and marks its timestamp into the throttle policy.
+    void send();										// Get order from input source and store it in the queue.
+    void recieve();										// Get order from front of deque and publish it out.
+    void pushBadOrder(const std::string&);				// store invalid or bad orders here.
     void writeBadOrders();
-    void evict();                                   // This function evicts the messages from back of queue if the size grows more than specified threshold.
-    void closeStreams();                            // Close the file streams required during processing.
+    void evict();										 // This function evicts the messages from back of queue if the size grows more than specified threshold.
+    void closeStreams();								 // Close the file streams required during processing.
+	std::string getThreadId(const std::thread::id&);	// convert the thread id into string for logging.
+	
 
 public:
-	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&, const int&);
+	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&, const int&, const int&, log4cpp::Category&);
 	Application(const Application&) = delete;
 	Application& operator=(const Application&) = delete;
 	Application(Application&& ) = delete;

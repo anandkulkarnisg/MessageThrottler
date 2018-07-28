@@ -12,6 +12,7 @@
 #include "OrderValidator.h"
 #include "SlidingWindowThrottlePolicy.h"
 #include "Logger.h"
+#include "CppXMLConfigReader.h"
 
 #include "ThreadPool.h"
 

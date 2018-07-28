@@ -2,7 +2,6 @@
 #include<string>
 
 #include "Application.h"
-#include "CppXMLConfigReader.h"
 
 using namespace std;
 
@@ -50,6 +49,9 @@ int main(int argc, char* argv[])
 	// Third threads runs eviction policy at specified periods of gap. In above case every 60 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
 
 	app.run();
+
+	// Shutdown the logger.
+	Logger::shutdown();
 
 	// Exit the process.
 	return(0);

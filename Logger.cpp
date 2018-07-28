@@ -17,7 +17,7 @@ log4cpp::Category& Logger::createLogger(const std::string& outputStreamName)
 	return(category);
 }
 
-Logger::~Logger()
+void Logger::shutdown()
 {
 	// Shutdown the application logging.
 	log4cpp::Category::shutdown();

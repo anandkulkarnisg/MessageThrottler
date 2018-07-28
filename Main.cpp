@@ -3,7 +3,6 @@
 
 #include "Application.h"
 #include "CppXMLConfigReader.h"
-#include "Logger.h"
 
 using namespace std;
 
@@ -29,7 +28,7 @@ int main(int argc, char* argv[])
 	// Load the configuration from the xml config file.
 	CppXMLConfigReader configReader("config.xml", "ThrottleAppSettings", "root");
 	configReader.init();
-
+	
 	std::string inputFeedFile = configReader.getStringValue("inputFeedFile", "input.txt.full");
 	std::string outputPublishFile = configReader.getStringValue("outputPublishFile", "output.txt");
 	std::string badMessagesFile = configReader.getStringValue("badMessagesFile", "badmessages.txt");
@@ -41,7 +40,9 @@ int main(int argc, char* argv[])
 	int threadPoolSize = configReader.getIntValue("threadPoolSize", 4);		
 	int publishThreads= configReader.getIntValue("numPublishers", 4);
 
-	log4cpp::Category& logger = Logger::createLogger(outputPublishFile); 
+    // First setup the logger.
+    log4cpp::Category& logger = Logger::createLogger(outputPublishFile);
+
 	Application app(inputFeedFile, outputPublishFile, badMessagesFile, numMessages, delayInMilliSeconds, queueFactor, evictionDelayInSecs, threadPoolSize, publishThreads, logger);
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.
@@ -49,9 +50,6 @@ int main(int argc, char* argv[])
 	// Third threads runs eviction policy at specified periods of gap. In above case every 60 secs and evicts anything greater than size of 25 * 100 = 2500 messages in queue.
 
 	app.run();
-
-	// Shutdown the application logging.
-	log4cpp::Category::shutdown();
 
 	// Exit the process.
 	return(0);

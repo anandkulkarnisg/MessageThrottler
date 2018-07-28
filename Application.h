@@ -8,14 +8,10 @@
 #include<condition_variable>
 #include<sstream>
 
-#include <log4cpp/Category.hh>
-#include <log4cpp/FileAppender.hh>
-#include <log4cpp/BasicLayout.hh>
-#include <log4cpp/PatternLayout.hh>
-
 #include "Order.h"
 #include "OrderValidator.h"
 #include "SlidingWindowThrottlePolicy.h"
+#include "Logger.h"
 
 #include "ThreadPool.h"
 

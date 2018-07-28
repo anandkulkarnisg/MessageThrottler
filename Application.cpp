@@ -26,7 +26,6 @@ void Application::init()
 
 std::string Application::getThreadId(const std::thread::id& id)
 {
-	std::lock_guard<std::mutex> guard(m_mutex);
 	stringstream ss;
 	ss << id;
 	string myString = ss.str();		

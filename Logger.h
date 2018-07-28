@@ -18,6 +18,7 @@ class Logger : private boost::noncopyable
 {
 	public:
 		static log4cpp::Category& createLogger(const std::string&);
+		~Logger();
 };
 
 #endif

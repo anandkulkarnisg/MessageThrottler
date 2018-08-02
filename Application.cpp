@@ -20,8 +20,11 @@ Application::Application(const std::string& inputStream, const std::string& outp
 void Application::init()
 {
 	// Initialize the streams here.
+	m_logger.info("init : Initializing the application layer. setting up the streams info and processing status.");
 	m_inputFileStream.open(m_inputStreamName, std::ifstream::in);	
+	m_badMessageFileStream.open(m_badMessageStreamName);
 	m_status = processingStatus::inprogress;
+	m_logger.info("init : Finished initializing the application layer.");
 }
 
 std::string Application::getThreadId(const std::thread::id& id)
@@ -125,41 +128,62 @@ void Application::send()
 			m_logger.info(logMessage);
 		}
 	}
+
+	m_logger.info("Finished from the worker thread." + workerId);
 }
 
 void Application::writeBadOrders()
 {
 	// This method writes out all bad messages and their reason of validation fail at the end of all processing.
 	// In real world it can run in its own thread and keep logging in paralle. Here for demo this is kept at the end to demonstrate the concept/principle.
-	m_badMessageFileStream.open(m_badMessageStreamName);	
+	std::string logMessage;
+	logMessage += "writeBadOrders : There are a total of ";
+	logMessage += std::to_string(m_badOrders.size());
+	logMessage += " orders which are invalid. dumping them now the seperate file";
+	m_logger.info(logMessage); 
 	for(const auto& iter : m_badOrders)
 	{
 		m_badMessageFileStream << iter << std::endl;	
 	}
+	m_logger.info("writeBadOrders : Finished dumping all the bad orders to the file.Exiting the writeBadOrders thread.");
 }
 
 void Application::evict()
 {
+	std::string logMessage;
 	while(m_status != processingStatus::finished)
 	{
 		if(m_InternalQueue.size()>m_maxQueueSize)
 		{
-			long messagesLossCount = m_InternalQueue.size()-m_maxQueueSize;
+			long messageLossCount = m_InternalQueue.size()-m_maxQueueSize;
+			m_logger.info("EvictionPolicy : Attempting to take a lock of the queue");
 			std::lock_guard<std::mutex> guard(m_mutex);
+			m_logger.info("EvictionPolicy : Took lock of the queue successfully.");
 			// Reject all messages from deque which are having index greater than m_maxQueueSize-1.	
 			m_InternalQueue.resize(m_maxQueueSize);
-			std::cout << "WARN : Total number of " << messagesLossCount << " Were lost due to queue overgrowth." << std::endl;
+			logMessage += "EvicationPolicy : Warning : Total number of ";
+			logMessage += std::to_string(messageLossCount);
+			logMessage += " were lost due to queue overgrowth.";
+			m_logger.warn(logMessage);
 		}
 
 		// Sleep for number of seconds specified by the config.
+		logMessage = "EvictionPolicy : Starting to now sleep for ";
+		logMessage += std::to_string(m_evictionExcutePolicy);
+		logMessage += " seconds before attempting again.";
+		m_logger.info(logMessage);
 		std::this_thread::sleep_for(std::chrono::seconds(m_evictionExcutePolicy));
+		m_logger.info("EvictionPolicy : Finished sleep quota.");
 	}
+	m_logger.info("EvictionPolicy : Finishing the eviction policy thread as input queue has indicated status as finished.");
 }
 
 void Application::closeStreams()
 {
+	m_logger.info("closeStreams : Attempting to close the file streams for output and bad messages.");
 	m_inputFileStream.close();
 	m_badMessageFileStream.close();
+	m_logger.info("closeStreams : Finished closing the file streams.");
 }
 
 void Application::run()
@@ -167,10 +191,18 @@ void Application::run()
 	ThreadPool pool(m_threadPoolSize);
 	std::vector<std::future<void>> results;
 
+	std::string logMessage;
+	m_logger.info("Run : Entering the application run area.");
+
 	auto recieveThreadFunc = std::bind(&Application::recieve, this);
 	auto evictThreadFunc = std::bind(&Application::evict, this);
 
 	bindCalls threadCalls = { recieveThreadFunc, evictThreadFunc };
+
+	logMessage = "Run : Atempting to create";
+	logMessage += std::to_string(m_numPublisherThreads);
+	logMessage += " Number of threads for processing the data.";
+	m_logger.info(logMessage);
 
 	for(int i=0; i<m_numPublisherThreads; ++i)
 	{
@@ -178,14 +210,20 @@ void Application::run()
 		threadCalls.emplace_back(sendThreadFunc);
 	}
 
+	m_logger.info("Run : Submitting all the threads to the thread pool.");
+
 	// Submit the application calls to different threads in a thread pool.
 	for(auto& iter : threadCalls)
 		results.emplace_back(pool.enqueue(iter));
+
+	m_logger.info("Run : Awaiting for the finishing of all the threads from the pool.");
 
 	// Wait for the threads to finish.
 	// Now wait for the results.
 	for(auto&& iter : results)
 		iter.get();
+
+	m_logger.info("Run : Finished waiting for all the threads to join from the pool.");
 
 	// Towards the end dump all bad orders encountered to a file.
 	this->writeBadOrders();

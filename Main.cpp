@@ -41,8 +41,9 @@ int main(int argc, char* argv[])
 
     // First setup the logger.
     log4cpp::Category& logger = Logger::createLogger(outputPublishFile);
-
+	logger.info("Initialized the logger. Starting the Application layer");
 	Application app(inputFeedFile, outputPublishFile, badMessagesFile, numMessages, delayInMilliSeconds, queueFactor, evictionDelayInSecs, threadPoolSize, publishThreads, logger);
+	logger.info("Initialized the Application layer with required parameters.");
 
 	// Now we try to run the application in three threads. One thread picks up readAndPublish and another runs the recieveAndProcess method.
 	// We try to solve this via building three std functions and send them to a generic threadPool executor. 
@@ -51,6 +52,7 @@ int main(int argc, char* argv[])
 	app.run();
 
 	// Shutdown the logger.
+	logger.info("Shutting down the logger layer.");
 	Logger::shutdown();
 
 	// Exit the process.

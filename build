@@ -1,6 +1,7 @@
 #!/bin/bash
 
 export CFLAGS=$1
+export binaryName="ThrottleDemo"
 rm -f *.o
 
 for sourceObject in $(ls *.cpp)
@@ -8,5 +9,5 @@ do
 	g++ -std=c++14 $CFLAGS -c $sourceObject
 done
 
-g++ -std=c++11 $CFLAGS *.o -o Main.out -lpthread -L. -lCppConfigManager -lxerces-c -llog4cpp
-strip Main.out
+g++ -std=c++11 $CFLAGS *.o -o $binaryName -lpthread -L. -lCppConfigManager -lxerces-c -llog4cpp
+strip $binaryName ; ./cleanupObjFiles

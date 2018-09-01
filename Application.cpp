@@ -31,7 +31,7 @@ std::string Application::getThreadId(const std::thread::id& id)
 {
 	stringstream ss;
 	ss << id;
-	string myString = ss.str();		
+	string myString = ss.str();
 	return(myString);
 }
 

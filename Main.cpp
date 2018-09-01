@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	double queueFactor = configReader.getDoubleValue("queueFactor", 25);
 	long evictionDelayInSecs = configReader.getLongValue("evictionDelayInSecs", 60);
 	int threadPoolSize = configReader.getIntValue("threadPoolSize", 4);		
-	int publishThreads= configReader.getIntValue("numPublishers", 4);
+	int publishThreads = configReader.getIntValue("numPublishers", 4);
 
     // First setup the logger.
     log4cpp::Category& logger = Logger::createLogger(outputPublishFile);
@@ -58,5 +58,3 @@ int main(int argc, char* argv[])
 	// Exit the process.
 	return(0);
 }
-
-

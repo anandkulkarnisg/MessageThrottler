@@ -7,7 +7,7 @@ const char Order::orderCancel   = 'X';
 const char Order::orderTypeBuy = 'B';
 const char Order::orderTypeSell = 'S';
 
-const int Order::orderSymbolLength = 12;
+const size_t Order::orderSymbolLength = 12;
 
 Order::Order()
 {

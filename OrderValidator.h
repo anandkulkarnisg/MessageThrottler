@@ -22,7 +22,7 @@ class OrderValidator : private boost::noncopyable
 {
 private:
 	static long orderSequenceId;
-	static int orderLayoutTokens;
+	static size_t orderLayoutTokens;
 
 public:
 	std::tuple<std::pair<bool,std::string>,Order> validateOrder(const std::string&);

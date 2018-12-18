@@ -48,8 +48,8 @@ class Application
     processingStatus m_status;
     double m_queueThresholdFactor;				
     long m_evictionExcutePolicy;	
-    long m_maxQueueSize;
-    int m_threadPoolSize;
+    size_t m_maxQueueSize;
+    size_t m_threadPoolSize;
     int m_numPublisherThreads;
     log4cpp::Category& m_logger;						// The logger handle used to log all working to a log file
 

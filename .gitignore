@@ -6,3 +6,13 @@ CppXMLConfigReader.h
 XMLConfig.h
 *.so
 ThrottleDemo
+
+#From tool cmakegit.
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+*.swp
+valgrind.csv
+
+MessageThrottler

@@ -27,7 +27,7 @@ class Order
 		static const char orderTypeBuy;
 		static const char orderTypeSell;
 
-        static const int orderSymbolLength;
+    static const size_t orderSymbolLength;
 
 		// Required constructors.
 		Order();

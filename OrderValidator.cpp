@@ -1,7 +1,7 @@
 #include "OrderValidator.h"
 
 long OrderValidator::orderSequenceId = 0;
-int OrderValidator::orderLayoutTokens = 6;
+size_t OrderValidator::orderLayoutTokens = 6;
 
 std::tuple<std::pair<bool,std::string>,Order> OrderValidator::validateOrder(const std::string& inputOrderString)
 {

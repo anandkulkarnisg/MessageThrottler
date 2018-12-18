@@ -34,26 +34,26 @@ enum class processingStatus { inprogress, finished };
 class Application
 {
 
-private:
-	std::deque<Order> m_InternalQueue;					// This stores the incoming messages and sorts them in required order.
-	std::mutex m_mutex;									// Used to enable synchronization.
-	std::shared_ptr<ThrottlePolicy> m_throttlePolicy;	// The throttle policy is initialized here.
-	std::ifstream m_inputFileStream;					// The file from where the Orders are read.
-	std::vector<std::string> m_badOrders;				// dump all invalid orders into this vector and later perhaps print it out in a log ?
-	std::string m_inputStreamName;
-	std::string m_outputStreamName;
-	std::string m_badMessageStreamName;
-	std::ofstream m_badMessageFileStream;
-	std::condition_variable m_waitForCondition;
-	processingStatus m_status;
-	double m_queueThresholdFactor;				
-	long m_evictionExcutePolicy;	
-	long m_maxQueueSize;
-	int m_threadPoolSize;
-	int m_numPublisherThreads;
-	log4cpp::Category& m_logger;						// The logger handle used to log all working to a log file
+  private:
+    std::deque<Order> m_InternalQueue;					// This stores the incoming messages and sorts them in required order.
+    std::mutex m_mutex;									// Used to enable synchronization.
+    std::shared_ptr<ThrottlePolicy> m_throttlePolicy;	// The throttle policy is initialized here.
+    std::ifstream m_inputFileStream;					// The file from where the Orders are read.
+    std::vector<std::string> m_badOrders;				// dump all invalid orders into this vector and later perhaps print it out in a log ?
+    std::string m_inputStreamName;
+    std::string m_outputStreamName;
+    std::string m_badMessageStreamName;
+    std::ofstream m_badMessageFileStream;
+    std::condition_variable m_waitForCondition;
+    processingStatus m_status;
+    double m_queueThresholdFactor;				
+    long m_evictionExcutePolicy;	
+    long m_maxQueueSize;
+    int m_threadPoolSize;
+    int m_numPublisherThreads;
+    log4cpp::Category& m_logger;						// The logger handle used to log all working to a log file
 
-	void init();
+    void init();
     void storeOrder(const Order&&);						// Stores the incoming order into deque and marks its timestamp into the throttle policy.
     void send();										// Get order from input source and store it in the queue.
     void recieve();										// Get order from front of deque and publish it out.
@@ -61,22 +61,21 @@ private:
     void writeBadOrders();
     void evict();										 // This function evicts the messages from back of queue if the size grows more than specified threshold.
     void closeStreams();								 // Close the file streams required during processing.
-	std::string getThreadId(const std::thread::id&);	// convert the thread id into string for logging.
-	
+    std::string getThreadId(const std::thread::id&);	// convert the thread id into string for logging.
 
-public:
-	Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&, const int&, const int&, log4cpp::Category&);
-	Application(const Application&) = delete;
-	Application& operator=(const Application&) = delete;
-	Application(Application&& ) = delete;
-	Application& operator=(Application&& ) = delete;
+  public:
+    Application(const std::string& , const std::string&, const std::string&, const int&, const long&, const double&, const long&, const int&, const int&, log4cpp::Category&);
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+    Application(Application&& ) = delete;
+    Application& operator=(Application&& ) = delete;
 
-	void run();										// run layer runs all the logic of the application.
+    void run();										// run layer runs all the logic of the application.
 
-	~Application();
+    ~Application();
 
 };
 
-typedef std::vector<std::_Bind<std::_Mem_fn<void (Application::*)()> (Application*)>> bindCalls;
+typedef std::vector<std::_Bind<void (Application::*(Application*))()>> bindCalls;
 
 #endif
